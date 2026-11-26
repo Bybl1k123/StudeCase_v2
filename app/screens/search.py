@@ -5,11 +5,10 @@ from app.widgets.appbar import appbar
 from app.widgets.cards import file_card, empty_state
 from app.demo_data import DEMO_FILES
 
-def show_search(page: ft.Page, on_back, on_view_file, on_delete_file, on_edit_tags):
+def show_search(page: ft.Page, on_view_file, on_delete_file, on_edit_tags, navbar: ft.NavigationBar):
     state = {"active_tag": None, "query": ""}
     results_col = ft.Column(spacing=T.GAP)
 
-    # Собираем уникальные теги из всех файлов
     def get_all_unique_tags():
         all_tags = set()
         for f in DEMO_FILES:
@@ -30,7 +29,7 @@ def show_search(page: ft.Page, on_back, on_view_file, on_delete_file, on_edit_ta
         results_col.controls.clear()
         matches = filtered_files()
         if not matches:
-            results_col.controls.append(empty_state(ft.Icons.SEARCH_OFF, "Ничего не найдено"))
+            results_col.controls.append(empty_state(ft.Icons.SEARCH_OFF_ROUNDED, "Ничего не найдено"))
         else:
             for f in matches:
                 results_col.controls.append(
@@ -39,16 +38,16 @@ def show_search(page: ft.Page, on_back, on_view_file, on_delete_file, on_edit_ta
         found_label.value = f"Найдено: {len(matches)}"
         page.update()
 
-    found_label = ft.Text("Найдено: 0", size=T.FS_SMALL, color=T.TEXT_SECONDARY)
+    found_label = ft.Text("Найдено: 0", size=T.FS_SMALL, color=T.TEXT_SECONDARY, weight=ft.FontWeight.W_500)
     chips_row = ft.Row(scroll=ft.ScrollMode.AUTO, spacing=T.GAP_SM)
 
     def make_chip(tag: str) -> ft.Container:
         active = state["active_tag"] == tag
         return ft.Container(
-            content=ft.Text(f"#{tag}", size=T.FS_SMALL, color=T.TEXT_ON_PRIMARY if active else T.TAG_TEXT),
+            content=ft.Text(f"#{tag}", size=T.FS_SMALL, color=T.TEXT_ON_PRIMARY if active else T.TAG_TEXT, weight=ft.FontWeight.W_500),
             bgcolor=T.PRIMARY if active else T.TAG_BG,
             border_radius=T.R_CHIP,
-            padding=ft.Padding.symmetric(horizontal=12, vertical=6),
+            padding=ft.Padding.symmetric(horizontal=14, vertical=7),
             on_click=lambda e, t=tag: toggle_tag(t),
             ink=True,
         )
@@ -70,14 +69,19 @@ def show_search(page: ft.Page, on_back, on_view_file, on_delete_file, on_edit_ta
     view = ft.View(
         route="/search",
         padding=0,
+        bgcolor=T.BACKGROUND,
+        navigation_bar=navbar,
         controls=[
-            appbar("Поиск", back=lambda e: on_back()),
+            appbar("Поиск", large=True),
             ft.Container(
                 content=ft.Column([
                     ft.TextField(
-                        hint_text="Введите запрос...", prefix_icon=ft.Icons.SEARCH,
-                        border_radius=T.R_FIELD, bgcolor=T.SURFACE,
-                        border_color=T.DIVIDER, focused_border_color=T.PRIMARY,
+                        hint_text="Название конспекта или файла...",
+                        prefix_icon=ft.Icons.SEARCH_ROUNDED,
+                        border_radius=T.R_FIELD,
+                        bgcolor=T.SURFACE,
+                        border_color="transparent",
+                        focused_border_color=T.PRIMARY,
                         on_change=on_search_change,
                     ),
                     chips_row,
@@ -85,7 +89,7 @@ def show_search(page: ft.Page, on_back, on_view_file, on_delete_file, on_edit_ta
                     results_col,
                 ], spacing=T.GAP, scroll=ft.ScrollMode.AUTO),
                 expand=True,
-                padding=T.PAD_SCREEN,
+                padding=ft.Padding.only(left=T.PAD_SCREEN, right=T.PAD_SCREEN, top=4),
             ),
         ],
     )
@@ -93,6 +97,5 @@ def show_search(page: ft.Page, on_back, on_view_file, on_delete_file, on_edit_ta
     page.views.append(view)
     page.update()
     
-    # При запуске обновляем список тегов и результаты
     update_chips()
     render_results()

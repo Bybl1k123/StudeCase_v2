@@ -1,48 +1,57 @@
 """Визуальная тема StudeCase Mobile."""
 
 # Палитра
-PRIMARY        = "#4F46E5"
-PRIMARY_DARK   = "#6630A3"
-BACKGROUND     = "#F5F5F7"
-SURFACE        = "#FFFFFF"
-SURFACE_ALT    = "#F9FAFB"
-TEXT_PRIMARY   = "#1F2937"
-TEXT_SECONDARY = "#6B7280"
-TEXT_HINT      = "#9CA3AF"
+PRIMARY         = "#4F46E5"
+PRIMARY_LIGHT   = "#EEF2FF"
+PRIMARY_DARK    = "#3730A3"
+BACKGROUND      = "#F3F4F6"
+SURFACE         = "#FFFFFF"
+SURFACE_ALT     = "#F9FAFB"
+TEXT_PRIMARY    = "#111827"
+TEXT_SECONDARY  = "#6B7280"
+TEXT_HINT       = "#9CA3AF"
 TEXT_ON_PRIMARY = "#FFFFFF"
-DIVIDER        = "#E5E7EB"
+DIVIDER         = "#E5E7EB"
 
-FOLDER_COLOR   = "#F59E0B"
-NOTE_COLOR     = "#3B82F6"
-IMAGE_COLOR    = "#10B981"
-PDF_COLOR      = "#EF4444"
-FILE_COLOR     = "#6B7280"
+FOLDER_COLOR    = "#F59E0B"
+FOLDER_BG       = "#FEF3C7"
+NOTE_COLOR      = "#3B82F6"
+NOTE_BG         = "#DBEAFE"
+IMAGE_COLOR     = "#10B981"
+IMAGE_BG        = "#D1FAE5"
+PDF_COLOR       = "#EF4444"
+PDF_BG          = "#FEE2E2"
+FILE_COLOR      = "#6B7280"
+FILE_BG         = "#F3F4F6"
 
-TAG_BG         = "#EEF2FF"
-TAG_TEXT       = "#4F46E5"
+TAG_BG          = "#EEF2FF"
+TAG_TEXT        = "#4F46E5"
 
-DANGER         = "#EF4444"
-SUCCESS        = "#10B981"
+DANGER          = "#EF4444"
+DANGER_BG       = "#FEE2E2"
+SUCCESS         = "#10B981"
 
-SHADOW_SOFT    = "#00000010"
-SHADOW_CARD    = "#00000015"
+SHADOW_SOFT     = "#0000000D"
+SHADOW_CARD     = "#00000018"
 
 # Отступы
-PAD_SCREEN     = 16
-PAD_CARD       = 12
-PAD_ROW        = 12
-GAP            = 8
-GAP_SM         = 4
+PAD_SCREEN      = 16
+PAD_CARD        = 14
+PAD_ROW         = 12
+GAP             = 10
+GAP_SM          = 6
 
 # Скругления
-R_CARD         = 12
-R_BUTTON       = 10
-R_CHIP         = 20
-R_FIELD        = 12
+R_CARD          = 16
+R_BUTTON        = 14
+R_CHIP          = 20
+R_FIELD         = 14
+R_SHEET         = 24
 
 # Размеры шрифтов
-FS_TITLE       = 22
-FS_HEADING     = 18
-FS_BODY        = 16
-FS_SMALL       = 13
-FS_TINY        = 11
+FS_LARGE_TITLE  = 26
+FS_TITLE        = 20
+FS_HEADING      = 17
+FS_BODY         = 15
+FS_SMALL        = 13
+FS_TINY         = 11

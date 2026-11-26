@@ -1,62 +1,89 @@
 """Экран 1: Корневые папки."""
 import flet as ft
 from app import theme as T
-from app.demo_data import DEMO_TREE
+from app.demo_data import DEMO_TREE, DEMO_FILES
+from app.widgets.appbar import appbar
 from app.widgets.cards import empty_state
+from app.widgets.dialogs import show_action_sheet
 
-def show_folders(page: ft.Page, on_open_folder, on_delete_folder, on_search, on_review, on_create_folder, file_picker):
-    rows = []
+
+def show_folders(page: ft.Page, on_open_folder, on_delete_folder, on_create_folder, file_picker, navbar: ft.NavigationBar):
+    cards = []
     for node in DEMO_TREE:
-        rows.extend([
+        sub_count = len(node.get("children", []))
+        files_count = len([f for f in DEMO_FILES if f.get("folder_id") == node["id"]])
+        meta = []
+        if sub_count:
+            meta.append(f"папок: {sub_count}")
+        if files_count:
+            meta.append(f"файлов: {files_count}")
+        subtitle = " · ".join(meta) if meta else "Пустая папка"
+
+        cards.append(
             ft.Container(
                 content=ft.Row([
-                    ft.Icon(ft.Icons.FOLDER, color=T.FOLDER_COLOR, size=22),
-                    ft.Text(node["name"], size=T.FS_BODY, color=T.TEXT_PRIMARY, expand=True),
+                    ft.Container(
+                        content=ft.Icon(ft.Icons.FOLDER_ROUNDED, color=T.FOLDER_COLOR, size=24),
+                        width=44,
+                        height=44,
+                        bgcolor=T.FOLDER_BG,
+                        border_radius=12,
+                        alignment=ft.Alignment.CENTER,
+                    ),
+                    ft.Column([
+                        ft.Text(node["name"], size=T.FS_BODY, weight=ft.FontWeight.W_600, color=T.TEXT_PRIMARY),
+                        ft.Text(subtitle, size=T.FS_SMALL, color=T.TEXT_SECONDARY),
+                    ], spacing=2, expand=True),
                     ft.IconButton(
-                        icon=ft.Icons.DELETE_OUTLINE,
+                        icon=ft.Icons.DELETE_OUTLINE_ROUNDED,
                         icon_color=T.TEXT_HINT,
                         icon_size=20,
                         tooltip="Удалить папку",
                         on_click=lambda e, n=node: on_delete_folder(n),
                     ),
+                    ft.Icon(ft.Icons.CHEVRON_RIGHT_ROUNDED, color=T.TEXT_HINT, size=22),
                 ], spacing=T.PAD_ROW),
-                padding=ft.Padding.only(left=T.PAD_SCREEN, right=T.PAD_SCREEN, top=8, bottom=8),
+                bgcolor=T.SURFACE,
+                border_radius=T.R_CARD,
+                padding=T.PAD_CARD,
+                margin=ft.Margin.only(bottom=T.GAP),
                 on_click=lambda e, n=node: on_open_folder(n),
                 ink=True,
-            ),
-            ft.Divider(height=1, color=T.DIVIDER, thickness=0.5),
-        ])
+                shadow=ft.BoxShadow(blur_radius=10, color=T.SHADOW_SOFT, offset=ft.Offset(0, 2)),
+            )
+        )
 
-    content = ft.Column(rows, spacing=0, scroll=ft.ScrollMode.AUTO) if rows else empty_state(ft.Icons.FOLDER_OPEN, "Папок пока нет")
+    content = (
+        ft.Column(cards, spacing=0, scroll=ft.ScrollMode.AUTO)
+        if cards
+        else empty_state(ft.Icons.FOLDER_OPEN_ROUNDED, "Папок пока нет.\nНажмите «+», чтобы создать.")
+    )
+
+    def open_add_menu(e):
+        show_action_sheet(
+            page,
+            on_create_folder=lambda: on_create_folder(),
+            on_upload_file=(lambda: page.run_task(file_picker)) if DEMO_TREE else None,
+        )
 
     view = ft.View(
         route="/",
         padding=0,
+        bgcolor=T.BACKGROUND,
+        navigation_bar=navbar,
+        floating_action_button=ft.FloatingActionButton(
+            icon=ft.Icons.ADD_ROUNDED,
+            bgcolor=T.PRIMARY,
+            foreground_color=T.TEXT_ON_PRIMARY,
+            shape=ft.CircleBorder(),
+            on_click=open_add_menu,
+        ),
         controls=[
-            ft.AppBar(
-                title=ft.Text("StudeCase", color=T.TEXT_ON_PRIMARY, size=T.FS_TITLE, weight=ft.FontWeight.W_600),
-                bgcolor=T.PRIMARY, elevation=0,
-                actions=[
-                    ft.IconButton(ft.Icons.SEARCH, icon_color=T.TEXT_ON_PRIMARY, tooltip="Поиск", on_click=lambda e: on_search()),
-                    ft.IconButton(ft.Icons.SCHOOL, icon_color=T.TEXT_ON_PRIMARY, tooltip="Повторение", on_click=lambda e: on_review()),
-                    ft.IconButton(
-                        ft.Icons.CREATE_NEW_FOLDER,
-                        icon_color=T.TEXT_ON_PRIMARY,
-                        tooltip="Создать папку",
-                        on_click=lambda e: on_create_folder(),
-                    ),
-                    ft.IconButton(
-                        ft.Icons.ADD, 
-                        icon_color=T.TEXT_ON_PRIMARY, 
-                        tooltip="Добавить файл", 
-                        action=ft.PickFiles(file_picker) 
-                    ),
-                ],
-            ),
+            appbar("StudeCase", large=True),
             ft.Container(
                 content=content,
                 expand=True,
-                padding=ft.Padding.only(top=T.GAP),
+                padding=ft.Padding.only(left=T.PAD_SCREEN, right=T.PAD_SCREEN, top=4, bottom=70),
             ),
         ],
     )

@@ -15,41 +15,43 @@ def show_viewer(page: ft.Page, file: dict, current_folder: dict, on_back, on_rev
             toast("Не удалось открыть файл")
             return
 
-    # Если это заметка, берем её реальное содержимое
     content = file.get("content", "Нет содержимого") if file.get("type") == "note" else f"Этот файл ({file['name']}) не удалось открыть автоматически."
 
     view = ft.View(
         route="/viewer",
         padding=0,
+        bgcolor=T.BACKGROUND,
         controls=[
             appbar(
                 file.get("name", "Файл"),
                 back=lambda e: on_back(current_folder),
                 actions=[
-                    ft.IconButton(ft.Icons.REPLAY, icon_color=T.TEXT_ON_PRIMARY, tooltip="Повторить", on_click=lambda e: on_review()),
+                    ft.IconButton(ft.Icons.SCHOOL_OUTLINED, icon_color=T.PRIMARY, tooltip="Повторить", on_click=lambda e: on_review()),
                 ],
             ),
             ft.Container(
                 content=ft.Column([
-                    ft.Text(f'{file.get("type", "Файл")} · {file.get("date", "")}', size=T.FS_TINY, color=T.TEXT_HINT),
-                    ft.Row([tag_chip(t) for t in file.get("tags", [])]),
+                    ft.Text(f'{file.get("type", "Файл").upper()} · {file.get("date", "")}', size=T.FS_TINY, color=T.TEXT_HINT, weight=ft.FontWeight.W_600),
+                    ft.Row([tag_chip(t) for t in file.get("tags", [])], wrap=True),
                     ft.Divider(height=1, color=T.DIVIDER),
                     ft.Text(content, size=T.FS_BODY, color=T.TEXT_PRIMARY, selectable=True),
                 ], spacing=T.GAP, scroll=ft.ScrollMode.AUTO),
                 expand=True,
-                padding=T.PAD_SCREEN,
+                padding=20,
                 bgcolor=T.SURFACE,
-                margin=T.PAD_SCREEN,
+                margin=ft.Margin.only(left=T.PAD_SCREEN, right=T.PAD_SCREEN, top=8),
                 border_radius=T.R_CARD,
+                shadow=ft.BoxShadow(blur_radius=10, color=T.SHADOW_SOFT, offset=ft.Offset(0, 2)),
             ),
             ft.Container(
-                content=ft.Row([
-                    ft.OutlinedButton(
-                        "Удалить", icon=ft.Icons.DELETE_OUTLINE,
-                        style=ft.ButtonStyle(color=T.DANGER, shape=ft.RoundedRectangleBorder(radius=T.R_BUTTON)),
-                        on_click=lambda e: on_delete(file),
-                    ),
-                ], alignment=ft.MainAxisAlignment.CENTER),
+                content=ft.FilledButton(
+                    "Удалить заметку",
+                    icon=ft.Icons.DELETE_OUTLINE_ROUNDED,
+                    height=48,
+                    width=float("inf"),
+                    style=ft.ButtonStyle(bgcolor=T.DANGER_BG, color=T.DANGER, shape=ft.RoundedRectangleBorder(radius=T.R_BUTTON)),
+                    on_click=lambda e: on_delete(file),
+                ),
                 padding=T.PAD_SCREEN,
             ),
         ],

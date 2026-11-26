@@ -2,6 +2,7 @@
 import flet as ft
 from app import theme as T
 from app.widgets.appbar import appbar
+from app.widgets.cards import empty_state
 from app.demo_data import DEMO_FILES
 
 def show_review(page: ft.Page, folder: dict, on_back):
@@ -13,9 +14,14 @@ def show_review(page: ft.Page, folder: dict, on_back):
         view = ft.View(
             route="/review",
             padding=0,
+            bgcolor=T.BACKGROUND,
             controls=[
                 appbar("Повторение", back=lambda e: on_back()),
-                ft.Container(content=ft.Text("В этой папке нет заметок для повторения.", size=T.FS_BODY), alignment=ft.Alignment.CENTER, expand=True)
+                ft.Container(
+                    content=empty_state(ft.Icons.STYLE_OUTLINED, "В этой папке нет заметок для повторения."),
+                    alignment=ft.Alignment.CENTER,
+                    expand=True,
+                )
             ]
         )
         page.views.clear()
@@ -24,38 +30,67 @@ def show_review(page: ft.Page, folder: dict, on_back):
         return
 
     progress = ft.ProgressBar(value=0, color=T.PRIMARY, bgcolor=T.DIVIDER, bar_height=4)
-    counter = ft.Text(f"1 / {total}", size=T.FS_SMALL, color=T.TEXT_ON_PRIMARY)
-    card_title = ft.Text("", size=T.FS_TITLE, weight=ft.FontWeight.W_600, color=T.TEXT_PRIMARY, text_align=ft.TextAlign.CENTER)
+    counter = ft.Container(
+        content=ft.Text(f"1 / {total}", size=T.FS_SMALL, color=T.PRIMARY, weight=ft.FontWeight.W_600),
+        bgcolor=T.PRIMARY_LIGHT,
+        padding=ft.Padding.symmetric(horizontal=10, vertical=4),
+        border_radius=12,
+        margin=ft.Margin.only(right=16),
+    )
+    card_title = ft.Text("", size=T.FS_TITLE, weight=ft.FontWeight.W_700, color=T.TEXT_PRIMARY, text_align=ft.TextAlign.CENTER)
     
     answer_text = ft.Text("", size=T.FS_BODY, color=T.TEXT_PRIMARY, text_align=ft.TextAlign.CENTER)
-    answer_box = ft.Container(content=answer_text, visible=False, padding=T.PAD_CARD)
+    answer_box = ft.Container(
+        content=ft.Column([
+            ft.Divider(height=1, color=T.DIVIDER),
+            answer_text,
+        ], spacing=12, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+        visible=False,
+        padding=ft.Padding.only(top=8),
+    )
     
     show_answer_btn = ft.FilledButton(
-        "Показать ответ", style=ft.ButtonStyle(bgcolor=T.PRIMARY, color=T.TEXT_ON_PRIMARY, shape=ft.RoundedRectangleBorder(radius=T.R_BUTTON)),
+        "Показать ответ",
+        height=48,
+        width=220,
+        style=ft.ButtonStyle(bgcolor=T.PRIMARY, color=T.TEXT_ON_PRIMARY, shape=ft.RoundedRectangleBorder(radius=T.R_BUTTON)),
         on_click=lambda e: show_answer(),
     )
     
     quality_row = ft.Row([
-        ft.Button(
-            str(i), width=48, height=48, style=ft.ButtonStyle(bgcolor=T.SURFACE_ALT, color=T.TEXT_PRIMARY, shape=ft.RoundedRectangleBorder(radius=T.R_BUTTON)),
+        ft.Container(
+            content=ft.Text(str(i), size=T.FS_HEADING, weight=ft.FontWeight.W_600, color=T.TEXT_PRIMARY),
+            height=48,
+            expand=True,
+            bgcolor=T.SURFACE,
+            border_radius=T.R_BUTTON,
+            alignment=ft.Alignment.CENTER,
+            shadow=ft.BoxShadow(blur_radius=6, color=T.SHADOW_SOFT, offset=ft.Offset(0, 2)),
+            ink=True,
             on_click=lambda e, q=i: answer(q),
         ) for i in range(6)
-    ], alignment=ft.MainAxisAlignment.SPACE_EVENLY)
+    ], spacing=6)
     
     quality_labels = ft.Row([
-        ft.Text("забыл", size=T.FS_TINY, color=T.TEXT_HINT),
-        ft.Text("легко", size=T.FS_TINY, color=T.TEXT_HINT),
+        ft.Text("Совсем забыл", size=T.FS_TINY, color=T.TEXT_HINT),
+        ft.Text("Очень легко", size=T.FS_TINY, color=T.TEXT_HINT),
     ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
+
+    rating_block = ft.Column([
+        ft.Text("Насколько легко вспомнил?", size=T.FS_SMALL, color=T.TEXT_SECONDARY, weight=ft.FontWeight.W_500),
+        quality_row,
+        quality_labels,
+    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=8)
 
     def render_current():
         if idx["i"] >= total:
             card_title.value = "🎉 Всё повторено!"
-            answer_box.visible = False
+            answer_text.value = "Отличная работа! Все карточки в этой папке пройдены."
+            answer_box.visible = True
             show_answer_btn.visible = False
-            quality_row.visible = False
-            quality_labels.visible = False
+            rating_block.visible = False
             progress.value = 1
-            counter.value = f"{total} / {total}"
+            counter.content.value = f"{total} / {total}"
             page.update()
             return
         
@@ -64,14 +99,14 @@ def show_review(page: ft.Page, folder: dict, on_back):
         answer_text.value = item.get("content", "Нет содержимого")
         answer_box.visible = False
         show_answer_btn.visible = True
-        quality_row.visible = True
-        quality_labels.visible = True
-        counter.value = f'{idx["i"] + 1} / {total}'
+        rating_block.visible = True
+        counter.content.value = f'{idx["i"] + 1} / {total}'
         progress.value = idx["i"] / total
         page.update()
 
     def show_answer():
         answer_box.visible = True
+        show_answer_btn.visible = False
         page.update()
 
     def answer(quality: int):
@@ -81,21 +116,24 @@ def show_review(page: ft.Page, folder: dict, on_back):
     view = ft.View(
         route="/review",
         padding=0,
+        bgcolor=T.BACKGROUND,
         controls=[
-            appbar("Повторение", back=lambda e: on_back(), actions=[ft.Container(content=counter, padding=ft.Padding.only(right=16))]),
+            appbar(folder["name"], back=lambda e: on_back(), actions=[counter]),
             progress,
             ft.Container(
                 content=ft.Column([
                     ft.Container(
-                        content=ft.Column([card_title, answer_box, show_answer_btn], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=T.GAP),
-                        bgcolor=T.SURFACE, border_radius=T.R_CARD, padding=24, margin=ft.Margin.symmetric(vertical=40),
-                        shadow=ft.BoxShadow(blur_radius=12, color=T.SHADOW_CARD, offset=ft.Offset(0, 4)),
+                        content=ft.Column([card_title, answer_box, show_answer_btn], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=16),
+                        bgcolor=T.SURFACE,
+                        border_radius=T.R_CARD,
+                        padding=24,
+                        width=float("inf"),
+                        shadow=ft.BoxShadow(blur_radius=14, color=T.SHADOW_CARD, offset=ft.Offset(0, 4)),
                     ),
-                    ft.Text("Насколько легко вспомнил?", size=T.FS_SMALL, color=T.TEXT_SECONDARY),
-                    quality_row,
-                    quality_labels,
-                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=T.GAP),
-                expand=True, padding=T.PAD_SCREEN,
+                    rating_block,
+                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                expand=True,
+                padding=ft.Padding.only(left=T.PAD_SCREEN, right=T.PAD_SCREEN, top=24, bottom=28),
             ),
         ],
     )
