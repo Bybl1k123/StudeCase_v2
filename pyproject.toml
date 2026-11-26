@@ -17,4 +17,4 @@ path = "app"
 module = "mobile"
 
 [tool.flet.android]
-extract_packages = ["app"]
+extract_packages = ["app", "pillow", "sqlalchemy"]
