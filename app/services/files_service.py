@@ -18,20 +18,12 @@ def open_external_file(file_path: str) -> bool:
     if not file_path or not os.path.exists(file_path):
         return False
 
-    # Обработка для Android
+    # На Android внешние файлы открывать нельзя из-за песочницы
     if platform.system() == "Android" or "ANDROID_ARGUMENT" in os.environ:
-        try:
-            import flet as ft
-            # Пытаемся открыть файл через системный Intent Android
-            # Важно: используем абсолютный путь
-            abs_path = os.path.abspath(file_path)
-            ft.launch_url(f"file://{abs_path}")
-            return True
-        except Exception as e:
-            print(f"Ошибка открытия файла на Android: {e}")
-            return False
+        # Возвращаем False, чтобы UI показал сообщение "Не удалось открыть"
+        return False
 
-    # Обработка для Windows, macOS и Linux (остается как было)
+    # Для Windows, macOS и Linux оставляем старую логику
     try:
         if platform.system() == "Windows":
             os.startfile(file_path)
