@@ -1,7 +1,9 @@
 import sqlite3
 import os
 
-DB_PATH = os.path.join(os.getcwd(), "studecase.db")
+# На Android Flet использует эту переменную для папки с данными приложения
+BASE_DIR = os.getenv("FLET_APP_STORAGE_DATA", os.getcwd())
+DB_PATH = os.path.join(BASE_DIR, "studecase.db")
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
