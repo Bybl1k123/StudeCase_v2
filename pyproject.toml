@@ -16,7 +16,7 @@ org = "com.gnilitskii"
 product = "StudeCase"
 
 [tool.flet.app]
-path = "app"
+path = "."
 module = "mobile"
 
 [tool.flet.android]
