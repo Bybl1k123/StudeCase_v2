@@ -3,7 +3,10 @@ name = "studeCase"
 version = "0.1.0"
 description = "StudeCase Flet App"
 requires-python = ">=3.10"
-dependencies = ["flet", "sqlalchemy", "pydantic", "python-multipart", "pillow"]
+dependencies = [
+    "flet",
+    "sqlalchemy",
+]
 
 [tool.flet]
 org = "com.gnilitskii"
@@ -12,3 +15,6 @@ product = "StudeCase"
 [tool.flet.app]
 path = "app"
 module = "mobile"
+
+[tool.flet.android]
+extract_packages = ["app"]
