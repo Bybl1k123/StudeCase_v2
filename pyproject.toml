@@ -6,6 +6,9 @@ requires-python = ">=3.10"
 dependencies = [
     "flet",
     "sqlalchemy",
+    "pydantic",
+    "python-multipart",
+    "pillow",
 ]
 
 [tool.flet]
